@@ -159,11 +159,11 @@ class BaseAviary(BenchmarkEnv):
         self.FRAME_PER_SEC = 24
         self.CAPTURE_FREQ = int(self.PYB_FREQ / self.FRAME_PER_SEC)
         self.CAM_VIEW = p.computeViewMatrixFromYawPitchRoll(
-            distance=3,
-            yaw=-30,
-            pitch=-30,
+            distance=2,
+            yaw=0,
+            pitch=-10,
             roll=0,
-            cameraTargetPosition=[0, 0, 0],
+            cameraTargetPosition=[0, 0, 1.2],
             upAxisIndex=2,
             physicsClientId=self.PYB_CLIENT)
         self.CAM_PRO = p.computeProjectionMatrixFOV(fov=60.0,

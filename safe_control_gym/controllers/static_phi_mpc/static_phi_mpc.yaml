@@ -1,0 +1,23 @@
+# Static-Phi MPC args
+phi_path: safe_control_gym/experiments/static_predictor/static_phi_stats/phi.npy
+phi_bias_path: safe_control_gym/experiments/static_predictor/static_phi_stats/phi_bias.npy
+t_ini: 20
+horizon: 40
+y_observation_indices: [0, 2, 4]
+qy_mpc: [5.0, 5.0, 0.1]
+r_mpc: [0.1, 0.1]
+qy_delta_mpc: [0.0]
+r_delta_mpc: [0.0]
+include_first_input_slew: True
+use_terminal_weight: False
+terminal_weight_scale: 1.0
+warmstart: True
+solver: OSQP
+solver_max_iter: 20000
+solver_eps_abs: 1.0e-5
+solver_eps_rel: 1.0e-5
+verbose_solver: False
+enforce_y_bounds: False
+y_lower_bound: null
+y_upper_bound: null
+y_bound_margin: 0.0

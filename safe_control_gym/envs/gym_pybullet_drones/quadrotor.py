@@ -603,6 +603,66 @@ class Quadrotor(BaseAviary):
         # Setup symbolic model.
         self.symbolic = SymbolicModel(dynamics=dynamics, cost=cost, dt=dt, params=params)
 
+    def get_static_phi_spec(self, history, horizon, y_observation_indices=None):
+        """Return dimensions for the masked static-Phi predictor."""
+        h = int(history)
+        n = int(horizon)
+        n_u = int(self.action_dim)
+
+        if y_observation_indices is None:
+            n_y = int(self.obs_dim)
+        else:
+            n_y = int(len(y_observation_indices))
+
+        n_hist = n_u * h + n_y * (h + 1)
+        n_future_u = n_u * n
+        n_target = n_y * n
+        n_regressor = n_hist + n_future_u
+        n_params = n_target * n_hist + n_y * n_u * n * (n + 1) // 2
+
+        return {
+            'history': h,
+            'horizon': n,
+            'n_u': n_u,
+            'n_y': n_y,
+            'n_hist': n_hist,
+            'n_future_u': n_future_u,
+            'n_target': n_target,
+            'n_regressor': n_regressor,
+            'n_params': int(n_params),
+        }
+
+    def build_static_phi_from_p_dyn_numpy(self, p_dyn, history, horizon, y_observation_indices=None):
+        """Build masked Phi from p_dyn using the DDPC packing convention."""
+        spec = self.get_static_phi_spec(
+            history=history,
+            horizon=horizon,
+            y_observation_indices=y_observation_indices,
+        )
+        n_y = spec['n_y']
+        n_u = spec['n_u']
+        n_target = spec['n_target']
+        n_hist = spec['n_hist']
+        n_future_u = spec['n_future_u']
+
+        p = np.asarray(p_dyn, dtype=np.float64).reshape(-1)
+        n_past = n_target * n_hist
+
+        phi_past = p[:n_past].reshape(n_target, n_hist)
+        phi_future = np.zeros((n_target, n_future_u), dtype=np.float64)
+
+        cursor = n_past
+        for step in range(spec['horizon']):
+            row_start = step * n_y
+            row_end = row_start + n_y
+            col_end = (step + 1) * n_u
+            block_len = n_y * col_end
+            block = p[cursor : cursor + block_len].reshape(n_y, col_end)
+            phi_future[row_start:row_end, :col_end] = block
+            cursor += block_len
+
+        return np.concatenate((phi_past, phi_future), axis=1)
+
     def _set_action_space(self):
         '''Sets the action space of the environment.'''
         # Define action/input dimension, labels, and units.

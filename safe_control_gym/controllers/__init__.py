@@ -53,3 +53,7 @@ register(idx='rap',
 register(idx='mpc_acados',
          entry_point='safe_control_gym.controllers.mpc.mpc_acados:MPC_ACADOS',
          config_entry_point='safe_control_gym.controllers.mpc:mpc_acados.yaml')
+
+register(idx='static_phi_mpc',
+         entry_point='safe_control_gym.controllers.static_phi_mpc.static_phi_mpc:StaticPhiController',
+         config_entry_point='safe_control_gym.controllers.static_phi_mpc:static_phi_mpc.yaml')
